@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <title>Show Flow Manager</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .editable {
+            border: 1px solid #ccc;
+            padding: 6px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Show Flow Manager</h1>
+    <h1 id="project_name">Project name: <input id="project-name"></h1>
+
+    <table id="rundown">
+        <tr>
+            <th>#</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Duration</th>
+            <th>Title</th>
+            <th>PGM</th>
+            <th>EVS</th>
+            <th>CG</th>
+            <th>AUDIO</th>
+            <th>Notes</th>
+            <th>ACTIONS</th>
+        </tr>
+
+            <tr data-index=1>
+                <td class="editable id"  data-field="id">1</td>
+                <td class="editable time"  data-field="startTime"><input></td>
+                <td class="editable time"  data-field="endTime"><input></td>
+                <td class="editable time"  data-field="duration"><input></td>
+                <td class="editable"  data-field="title"><input></td>
+                <td class="editable"  data-field="pgm"><input></td>
+                <td class="editable"  data-field="evs"><input></td>
+                <td class="editable"  data-field="cg"><input></td>
+                <td class="editable"  data-field="audio"><input></td>
+                <td class="editable"  data-field="notes"><input></td>
+                <td>
+                <button class="add">ADD</button>
+                <button class="remove">REMOVE</button>
+                </td>
+            </tr>
+
+    </table>
+
+    <script>
+        function calculateDuration(startTime, endTime) {
+            // Parse input strings using Moment.js
+            var startMoment = moment(startTime, 'HH:mm:ss')
+            var endMoment = moment(endTime, 'HH:mm:ss')
+
+            // Calculate duration
+            var duration = moment.duration(endMoment.diff(startMoment))
+
+            // Format duration as HH:mm:ss
+            var formattedDuration = moment.utc(duration.asMilliseconds()).format('HH:mm:ss')
+
+            return formattedDuration
+        }
+
+        function calculateEndTime(startTime, duration) {
+            // Convert endTime and duration to moment objects
+            var startMoment = moment(startTime, 'HH:mm:ss')
+            var durationMoment = moment.duration(duration)
+
+            // Calculate start time by subtracting duration from end time
+            var endMoment = startMoment.add(durationMoment)
+
+            // Format start time in 'HH:mm:ss' and return
+            return endMoment.format('HH:mm:ss')
+        }
+
+        function updatedStartTime(index){
+            const endTimeEl = $(`tr[data-index=${index}] > td[data-field="endTime"] > input`)
+            const durationEl = $(`tr[data-index=${index}] > td[data-field="duration"] > input`)
+            const startTimeEl = $(`tr[data-index=${index}] > td[data-field="startTime"] > input`)
+
+            endTimeEl.val( calculateEndTime(startTimeEl.val(), durationEl.val()) )
+        }
+
+        function updatedEndTime(index){
+            const endTimeEl = $(`tr[data-index=${index}] > td[data-field="endTime"] > input`)
+            const durationEl = $(`tr[data-index=${index}] > td[data-field="duration"] > input`)
+            const startTimeEl = $(`tr[data-index=${index}] > td[data-field="startTime"] > input`)
+
+            durationEl.val( calculateDuration(startTimeEl.val(), endTimeEl.val()) )
+        }
+
+        function updatedDuration(index){
+            const endTimeEl = $(`tr[data-index=${index}] > td[data-field="endTime"] > input`)
+            const durationEl = $(`tr[data-index=${index}] > td[data-field="duration"] > input`)
+            const startTimeEl = $(`tr[data-index=${index}] > td[data-field="startTime"] > input`)
+
+            endTimeEl.val( calculateEndTime(startTimeEl.val(), durationEl.val()) )
+        }
+
+        function isValidTimeFormat(inputString) {
+            console.log(`input: ${inputString}`)
+            // Regular expression for 'HH:mm:ss' format
+            var timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/
+
+            // Test the input string against the regular expression
+            const res = timeRegex.test(inputString)
+            console.log(`res: ${res}`)
+            return res
+        }
+
+
+        $(document).ready(function() {
+            $('body').on('click', '.add', function() {
+                var index = $(this).parent().parent().attr('data-index')
+                const startTime = $(`tr[data-index=${index}] > td[data-field="endTime"] > input`).val()
+                if(startTime != ""){
+                    index++
+                    $('#rundown').append(`
+                    <tr data-index=${index}>
+                    <td class="editable id"  data-field="id">${index}</td>
+                    <td class="editable time"  data-field="startTime"><input></td>
+                    <td class="editable time"  data-field="endTime"><input></td>
+                    <td class="editable time"  data-field="duration"><input></td>
+                    <td class="editable"  data-field="title"><input></td>
+                    <td class="editable"  data-field="pgm"><input></td>
+                    <td class="editable"  data-field="evs"><input></td>
+                    <td class="editable"  data-field="cg"><input></td>
+                    <td class="editable"  data-field="audio"><input></td>
+                    <td class="editable"  data-field="notes"><input></td>
+                    <td>
+                    <button class="add">ADD</button>
+                    <button class="remove">REMOVE</button>
+                    </td>
+                    </tr>
+                    `)
+                    $(`tr[data-index=${index}] > td[data-field="startTime"] > input`).val(startTime)
+                }
+
+            })
+
+            $('body').on('keyup', 'input', function(event) {
+                if (event.key === 'Enter') {   
+                    if( $(this).parent().hasClass('time') && !(isValidTimeFormat($(this).val())) ){
+                        alert('Invalid format')
+                        $(this).val("")
+                    }
+                    else{
+                        $(this).blur()
+                        if($(this).parent().attr('data-field') == 'startTime'){
+                            updatedStartTime( $(this).parent().parent().attr('data-index') )
+                        }
+                        if($(this).parent().attr('data-field') == 'duration'){
+                            updatedDuration( $(this).parent().parent().attr('data-index') )
+                        }
+                        if($(this).parent().attr('data-field') == 'endTime'){
+                            updatedEndTime( $(this).parent().parent().attr('data-index') )
+                        }
+                    }
+                }
+            })
+        })
+    </script>
+</body>
+</html>
