@@ -26,6 +26,10 @@
             border: 1px solid #ccc;
             padding: 6px;
         }
+        .addrow{
+            text-align: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -47,22 +51,26 @@
             <th>ACTIONS</th>
         </tr>
 
-            <tr data-index=1>
-                <td class="editable id"  data-field="id">1</td>
-                <td class="editable time"  data-field="startTime"><input></td>
-                <td class="editable time"  data-field="endTime"><input></td>
-                <td class="editable time"  data-field="duration"><input></td>
-                <td class="editable"  data-field="title"><input></td>
-                <td class="editable"  data-field="pgm"><input></td>
-                <td class="editable"  data-field="evs"><input></td>
-                <td class="editable"  data-field="cg"><input></td>
-                <td class="editable"  data-field="audio"><input></td>
-                <td class="editable"  data-field="notes"><input></td>
-                <td>
-                <button class="add">ADD</button>
-                <button class="remove">REMOVE</button>
-                </td>
-            </tr>
+        <tr data-index=1 class="userinput">
+            <td class="editable id"  data-field="id">1</td>
+            <td class="editable time"  data-field="startTime"><input></td>
+            <td class="editable time"  data-field="endTime"><input></td>
+            <td class="editable time"  data-field="duration"><input></td>
+            <td class="editable"  data-field="title"><input></td>
+            <td class="editable"  data-field="pgm"><input></td>
+            <td class="editable"  data-field="evs"><input></td>
+            <td class="editable"  data-field="cg"><input></td>
+            <td class="editable"  data-field="audio"><input></td>
+            <td class="editable"  data-field="notes"><input></td>
+            <td>
+            <button class="duplicate">DUPLICATE</button>
+            <button class="remove">REMOVE</button>
+            </td>
+        </tr>
+
+        <tr id="lastrow">
+            <td class="editable addrow" colspan="11"><button class="add">ADD</button></td>
+        </tr>
 
     </table>
 
@@ -94,11 +102,22 @@
         }
 
         function updatedStartTime(index){
+            var rows = $("#rundown").find(`tr[class="userinput"]`)
+            console.log('rows length ' + rows.length)
+
             const endTimeEl = $(`tr[data-index=${index}] > td[data-field="endTime"] > input`)
             const durationEl = $(`tr[data-index=${index}] > td[data-field="duration"] > input`)
             const startTimeEl = $(`tr[data-index=${index}] > td[data-field="startTime"] > input`)
 
             endTimeEl.val( calculateEndTime(startTimeEl.val(), durationEl.val()) )
+            console.log('index: ' + index)
+            console.log('rows.length + 1: ' + (rows.length + 1))
+            for(var i = index; i < (rows.length + 1); i++){
+                console.log('start recalc iteracio: ' + i)
+                //$(`tr[data-index=${i}] > td[data-field="startTime"] > input`).val( $(`tr[data-index=${i-1}] > td[data-field="endTime"] > input`).val() )
+                //$(`tr[data-index=${i}] > td[data-field="endTime"] > input`).val( calculateEndTime( $(`tr[data-index=${i}] > td[data-field="startTime"] > input`).val(), $(`tr[data-index=${i}] > td[data-field="duration"] > input`).val() ) )
+            }
+            console.log('why')
         }
 
         function updatedEndTime(index){
@@ -128,15 +147,38 @@
             return res
         }
 
+        function updateTableRemove(deletedIndex){
+            var rows = $("#rundown").find(`tr[class="userinput"]`)
+            deletedIndex = deletedIndex - 0
+            console.log(rows.length, deletedIndex)
+            for(var i = deletedIndex; i < rows.length + 1; i++){
+                console.log('iteracio: ' + i)
+                $(`tr[data-index=${i+1}] > td[data-field="id"]`).text(i)
+                $(`tr[data-index=${i+1}] > td[data-field="id"]`).val(i)
+                const prevEndTime = $(`tr[data-index=${i-1}] > td[data-field="endTime"] > input`).val()
+                //console.log(prevEndTime)
+                const duration = $(`tr[data-index=${i+1}] > td[data-field="duration"] > input`).val()
+                //console.log(duration)
+                $(`tr[data-index=${i+1}] > td[data-field="startTime"] > input`).val( prevEndTime )
+                $(`tr[data-index=${i+1}] > td[data-field="endTime"] > input`).val( calculateEndTime( prevEndTime, duration) )
+                $(`tr[data-index=${i+1}]`).attr('data-index', i)
+            }
+        }
 
         $(document).ready(function() {
             $('body').on('click', '.add', function() {
-                var index = $(this).parent().parent().attr('data-index')
+                const rows = $("#rundown").find("tr")
+                console.log(rows[rows.length-2])
+                const lastEl = rows[rows.length-2]
+                var index = lastEl.getAttribute('data-index')
+                console.log(index)
                 const startTime = $(`tr[data-index=${index}] > td[data-field="endTime"] > input`).val()
+                console.log(startTime)
                 if(startTime != ""){
                     index++
-                    $('#rundown').append(`
-                    <tr data-index=${index}>
+                    console.log(index)
+                    $('#lastrow').before(`
+                    <tr data-index=${index} class="userinput">
                     <td class="editable id"  data-field="id">${index}</td>
                     <td class="editable time"  data-field="startTime"><input></td>
                     <td class="editable time"  data-field="endTime"><input></td>
@@ -148,14 +190,26 @@
                     <td class="editable"  data-field="audio"><input></td>
                     <td class="editable"  data-field="notes"><input></td>
                     <td>
-                    <button class="add">ADD</button>
+                    <button class="duplicate">DUPLICATE</button>
                     <button class="remove">REMOVE</button>
                     </td>
                     </tr>
                     `)
                     $(`tr[data-index=${index}] > td[data-field="startTime"] > input`).val(startTime)
                 }
+            })
 
+            $('body').on('click', '.remove', function() {
+                var index = $(this).parent().parent().attr('data-index')
+                var rows = $("#rundown").find(`tr[class="userinput"]`)
+                console.log(rows.length)
+                if(rows.length > 1){
+                    $(this).parent().parent().remove()
+                    updateTableRemove(index)
+                }
+                else{
+                    alert(`You must have at least 1 segment!`)
+                }
             })
 
             $('body').on('keyup', 'input', function(event) {
