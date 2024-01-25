@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,27 +12,30 @@
             width: 100%;
             border-collapse: collapse;
         }
-
-        th, td {
+        
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
-
+        
         th {
             background-color: #f2f2f2;
         }
-
+        
         .editable {
             border: 1px solid #ccc;
             padding: 6px;
         }
-        .addrow{
+        
+        .addrow {
             text-align: center;
             justify-content: center;
         }
     </style>
 </head>
+
 <body>
     <h1>Show Flow Manager</h1>
     <h1 id="project_name">Project name: <input id="project-name"></h1>
@@ -52,19 +56,19 @@
         </tr>
 
         <tr data-index=1 class="userinput">
-            <td class="editable id"  data-field="id">1</td>
-            <td class="editable time"  data-field="startTime"><input></td>
-            <td class="editable time"  data-field="endTime"><input></td>
-            <td class="editable time"  data-field="duration"><input></td>
-            <td class="editable"  data-field="title"><input></td>
-            <td class="editable"  data-field="pgm"><input></td>
-            <td class="editable"  data-field="evs"><input></td>
-            <td class="editable"  data-field="cg"><input></td>
-            <td class="editable"  data-field="audio"><input></td>
-            <td class="editable"  data-field="notes"><input></td>
+            <td class="editable id" data-field="id">1</td>
+            <td class="editable time" data-field="startTime"><input></td>
+            <td class="editable time" data-field="endTime"><input></td>
+            <td class="editable time" data-field="duration"><input></td>
+            <td class="editable" data-field="title"><input></td>
+            <td class="editable" data-field="pgm"><input></td>
+            <td class="editable" data-field="evs"><input></td>
+            <td class="editable" data-field="cg"><input></td>
+            <td class="editable" data-field="audio"><input></td>
+            <td class="editable" data-field="notes"><input></td>
             <td>
-            <button class="duplicate">DUPLICATE</button>
-            <button class="remove">REMOVE</button>
+                <button class="duplicate">DUPLICATE</button>
+                <button class="remove">REMOVE</button>
             </td>
         </tr>
 
@@ -101,82 +105,137 @@
             return endMoment.format('HH:mm:ss')
         }
 
-        function updatedStartTime(index){
+        function updatedStartTime(index) {
             var rows = $("#rundown").find(`tr[class="userinput"]`)
-            console.log('rows length ' + rows.length)
+                //console.log('rows length ' + rows.length)
 
             const endTimeEl = $(`tr[data-index=${index}] > td[data-field="endTime"] > input`)
             const durationEl = $(`tr[data-index=${index}] > td[data-field="duration"] > input`)
             const startTimeEl = $(`tr[data-index=${index}] > td[data-field="startTime"] > input`)
 
-            endTimeEl.val( calculateEndTime(startTimeEl.val(), durationEl.val()) )
-            console.log('index: ' + index)
-            console.log('rows.length + 1: ' + (rows.length + 1))
-            for(var i = index; i < (rows.length + 1); i++){
+            endTimeEl.val(calculateEndTime(startTimeEl.val(), durationEl.val()))
+            const start = index + 1
+            console.log('start: ' + start)
+            const stop = rows.length + 1
+            console.log('stop: ' + stop)
+            for (var i = start; i < stop; i++) {
                 console.log('start recalc iteracio: ' + i)
-                //$(`tr[data-index=${i}] > td[data-field="startTime"] > input`).val( $(`tr[data-index=${i-1}] > td[data-field="endTime"] > input`).val() )
-                //$(`tr[data-index=${i}] > td[data-field="endTime"] > input`).val( calculateEndTime( $(`tr[data-index=${i}] > td[data-field="startTime"] > input`).val(), $(`tr[data-index=${i}] > td[data-field="duration"] > input`).val() ) )
+                $(`tr[data-index=${i}] > td[data-field="startTime"] > input`).val($(`tr[data-index=${i-1}] > td[data-field="endTime"] > input`).val())
+                $(`tr[data-index=${i}] > td[data-field="endTime"] > input`).val(calculateEndTime($(`tr[data-index=${i}] > td[data-field="startTime"] > input`).val(), $(`tr[data-index=${i}] > td[data-field="duration"] > input`).val()))
             }
-            console.log('why')
         }
 
-        function updatedEndTime(index){
+        function updatedEndTime(index) {
+            var rows = $("#rundown").find(`tr[class="userinput"]`)
             const endTimeEl = $(`tr[data-index=${index}] > td[data-field="endTime"] > input`)
             const durationEl = $(`tr[data-index=${index}] > td[data-field="duration"] > input`)
             const startTimeEl = $(`tr[data-index=${index}] > td[data-field="startTime"] > input`)
 
-            durationEl.val( calculateDuration(startTimeEl.val(), endTimeEl.val()) )
+            durationEl.val(calculateDuration(startTimeEl.val(), endTimeEl.val()))
+
+            const start = index + 1
+            console.log('start: ' + start)
+            const stop = rows.length + 1
+            console.log('stop: ' + stop)
+            for (var i = start; i < stop; i++) {
+                console.log('start recalc iteracio: ' + i)
+                $(`tr[data-index=${i}] > td[data-field="startTime"] > input`).val($(`tr[data-index=${i-1}] > td[data-field="endTime"] > input`).val())
+                $(`tr[data-index=${i}] > td[data-field="endTime"] > input`).val(calculateEndTime($(`tr[data-index=${i}] > td[data-field="startTime"] > input`).val(), $(`tr[data-index=${i}] > td[data-field="duration"] > input`).val()))
+            }
         }
 
-        function updatedDuration(index){
+        function updatedDuration(index) {
+            var rows = $("#rundown").find(`tr[class="userinput"]`)
             const endTimeEl = $(`tr[data-index=${index}] > td[data-field="endTime"] > input`)
             const durationEl = $(`tr[data-index=${index}] > td[data-field="duration"] > input`)
             const startTimeEl = $(`tr[data-index=${index}] > td[data-field="startTime"] > input`)
 
-            endTimeEl.val( calculateEndTime(startTimeEl.val(), durationEl.val()) )
+            endTimeEl.val(calculateEndTime(startTimeEl.val(), durationEl.val()))
+
+            const start = index + 1
+            console.log('start: ' + start)
+            const stop = rows.length + 1
+            console.log('stop: ' + stop)
+            for (var i = start; i < stop; i++) {
+                console.log('start recalc iteracio: ' + i)
+                $(`tr[data-index=${i}] > td[data-field="startTime"] > input`).val($(`tr[data-index=${i-1}] > td[data-field="endTime"] > input`).val())
+                $(`tr[data-index=${i}] > td[data-field="endTime"] > input`).val(calculateEndTime($(`tr[data-index=${i}] > td[data-field="startTime"] > input`).val(), $(`tr[data-index=${i}] > td[data-field="duration"] > input`).val()))
+            }
         }
 
         function isValidTimeFormat(inputString) {
-            console.log(`input: ${inputString}`)
+            //console.log(`input: ${inputString}`)
             // Regular expression for 'HH:mm:ss' format
             var timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/
 
             // Test the input string against the regular expression
             const res = timeRegex.test(inputString)
-            console.log(`res: ${res}`)
+                //console.log(`res: ${res}`)
             return res
         }
 
-        function updateTableRemove(deletedIndex){
+        function updateTableRemove(deletedIndex, ogStart) {
             var rows = $("#rundown").find(`tr[class="userinput"]`)
-            deletedIndex = deletedIndex - 0
-            console.log(rows.length, deletedIndex)
-            for(var i = deletedIndex; i < rows.length + 1; i++){
-                console.log('iteracio: ' + i)
-                $(`tr[data-index=${i+1}] > td[data-field="id"]`).text(i)
-                $(`tr[data-index=${i+1}] > td[data-field="id"]`).val(i)
-                const prevEndTime = $(`tr[data-index=${i-1}] > td[data-field="endTime"] > input`).val()
-                //console.log(prevEndTime)
-                const duration = $(`tr[data-index=${i+1}] > td[data-field="duration"] > input`).val()
-                //console.log(duration)
-                $(`tr[data-index=${i+1}] > td[data-field="startTime"] > input`).val( prevEndTime )
-                $(`tr[data-index=${i+1}] > td[data-field="endTime"] > input`).val( calculateEndTime( prevEndTime, duration) )
-                $(`tr[data-index=${i+1}]`).attr('data-index', i)
+            if (deletedIndex == 1) {
+                for (var i = deletedIndex; i < rows.length + 1; i++) {
+                    if (i == 1) {
+                        console.log('iteracio: ' + i)
+                        $(`tr[data-index=${i+1}] > td[data-field="id"]`).text(i)
+                        $(`tr[data-index=${i+1}] > td[data-field="id"]`).val(i)
+
+                        const duration = $(`tr[data-index=${i+1}] > td[data-field="duration"] > input`).val()
+                        console.log('ogStart: ' + ogStart)
+                        console.log('duration: ' + duration)
+                        const newEndTime = calculateEndTime(ogStart, duration)
+                        console.log(newEndTime)
+
+                        $(`tr[data-index=${i+1}] > td[data-field="startTime"] > input`).val(ogStart)
+                        $(`tr[data-index=${i+1}] > td[data-field="endTime"] > input`).val(newEndTime)
+                        $(`tr[data-index=${i+1}]`).attr('data-index', i)
+                    } else {
+                        console.log('iteracio: ' + i)
+                        $(`tr[data-index=${i+1}] > td[data-field="id"]`).text(i)
+                        $(`tr[data-index=${i+1}] > td[data-field="id"]`).val(i)
+                        const prevEndTime = $(`tr[data-index=${i-1}] > td[data-field="endTime"] > input`).val()
+                            //console.log(prevEndTime)
+                        const duration = $(`tr[data-index=${i+1}] > td[data-field="duration"] > input`).val()
+                            //console.log(duration)
+                        $(`tr[data-index=${i+1}] > td[data-field="startTime"] > input`).val(prevEndTime)
+                        $(`tr[data-index=${i+1}] > td[data-field="endTime"] > input`).val(calculateEndTime(prevEndTime, duration))
+                        $(`tr[data-index=${i+1}]`).attr('data-index', i)
+                    }
+                }
+
+            } else {
+                for (var i = deletedIndex; i < rows.length + 1; i++) {
+                    console.log('iteracio: ' + i)
+                    $(`tr[data-index=${i+1}] > td[data-field="id"]`).text(i)
+                    $(`tr[data-index=${i+1}] > td[data-field="id"]`).val(i)
+                    const prevEndTime = $(`tr[data-index=${i-1}] > td[data-field="endTime"] > input`).val()
+                        //console.log(prevEndTime)
+                    const duration = $(`tr[data-index=${i+1}] > td[data-field="duration"] > input`).val()
+                        //console.log(duration)
+                    $(`tr[data-index=${i+1}] > td[data-field="startTime"] > input`).val(prevEndTime)
+                    $(`tr[data-index=${i+1}] > td[data-field="endTime"] > input`).val(calculateEndTime(prevEndTime, duration))
+                    $(`tr[data-index=${i+1}]`).attr('data-index', i)
+                }
             }
+
         }
 
         $(document).ready(function() {
             $('body').on('click', '.add', function() {
                 const rows = $("#rundown").find("tr")
-                console.log(rows[rows.length-2])
-                const lastEl = rows[rows.length-2]
+                    //console.log(rows[rows.length - 2])
+                const lastEl = rows[rows.length - 2]
                 var index = lastEl.getAttribute('data-index')
-                console.log(index)
+                index = Number(index)
+                    //console.log(index)
                 const startTime = $(`tr[data-index=${index}] > td[data-field="endTime"] > input`).val()
-                console.log(startTime)
-                if(startTime != ""){
+                    //console.log(startTime)
+                if (startTime != "") {
                     index++
-                    console.log(index)
+                    //console.log(index)
                     $('#lastrow').before(`
                     <tr data-index=${index} class="userinput">
                     <td class="editable id"  data-field="id">${index}</td>
@@ -201,33 +260,33 @@
 
             $('body').on('click', '.remove', function() {
                 var index = $(this).parent().parent().attr('data-index')
+                index = Number(index)
+                var ogStart = $(`tr[data-index=${index}] > td[data-field="startTime"] > input`).val()
                 var rows = $("#rundown").find(`tr[class="userinput"]`)
-                console.log(rows.length)
-                if(rows.length > 1){
+                    //console.log(rows.length)
+                if (rows.length > 1) {
                     $(this).parent().parent().remove()
-                    updateTableRemove(index)
-                }
-                else{
+                    updateTableRemove(index, ogStart)
+                } else {
                     alert(`You must have at least 1 segment!`)
                 }
             })
 
             $('body').on('keyup', 'input', function(event) {
-                if (event.key === 'Enter') {   
-                    if( $(this).parent().hasClass('time') && !(isValidTimeFormat($(this).val())) ){
+                if (event.key === 'Enter') {
+                    if ($(this).parent().hasClass('time') && !(isValidTimeFormat($(this).val()))) {
                         alert('Invalid format')
                         $(this).val("")
-                    }
-                    else{
+                    } else {
                         $(this).blur()
-                        if($(this).parent().attr('data-field') == 'startTime'){
-                            updatedStartTime( $(this).parent().parent().attr('data-index') )
+                        if ($(this).parent().attr('data-field') == 'startTime') {
+                            updatedStartTime(Number($(this).parent().parent().attr('data-index')))
                         }
-                        if($(this).parent().attr('data-field') == 'duration'){
-                            updatedDuration( $(this).parent().parent().attr('data-index') )
+                        if ($(this).parent().attr('data-field') == 'duration') {
+                            updatedDuration(Number($(this).parent().parent().attr('data-index')))
                         }
-                        if($(this).parent().attr('data-field') == 'endTime'){
-                            updatedEndTime( $(this).parent().parent().attr('data-index') )
+                        if ($(this).parent().attr('data-field') == 'endTime') {
+                            updatedEndTime(Number($(this).parent().parent().attr('data-index')))
                         }
                     }
                 }
@@ -235,4 +294,5 @@
         })
     </script>
 </body>
+
 </html>
