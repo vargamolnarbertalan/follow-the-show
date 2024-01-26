@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://rawgit.com/jeresig/jquery.hotkeys/master/jquery.hotkeys.js"></script>
     <title>Show Flow Manager</title>
     <style>
         table {
@@ -39,6 +40,8 @@
 <body>
     <h1>Show Flow Manager</h1>
     <h1 id="project_name">Project name: <input id="project-name"></h1>
+    <button onclick="downloadJson()">Download JSON</button>
+
 
     <table id="rundown">
         <tr>
@@ -73,7 +76,7 @@
         </tr>
 
         <tr id="lastrow">
-            <td class="editable addrow" colspan="11"><button class="add">ADD</button></td>
+            <td class="editable addrow" colspan="11"><button id="add">ADD</button></td>
         </tr>
 
     </table>
@@ -223,19 +226,68 @@
 
         }
 
+        function downloadJson() {
+            // Get the table element
+            var table = document.getElementById('rundown')
+
+            // Get the table headers
+            var headers = []
+            var headerRow = table.rows[1]
+            for (var i = 0; i < headerRow.cells.length - 1; i++) {
+                headers.push(headerRow.cells[i].getAttribute('data-field').toLowerCase())
+            }
+
+            // Create an array to store the JSON objects
+            var jsonData = []
+
+            // Iterate through each row and create JSON objects
+            for (var i = 1; i < table.rows.length; i++) {
+                var row = table.rows[i];
+                var rowData = {};
+
+                for (var j = 0; j < row.cells.length - 1; j++) {
+                    var inputField = row.cells[j].querySelector('input');
+                    if (inputField) {
+                        rowData[headers[j]] = inputField.value;
+                    } else {
+                        rowData[headers[j]] = row.cells[j].textContent;
+                    }
+                }
+
+                jsonData.push(rowData);
+            }
+
+            // Convert the array to JSON string
+            var jsonString = JSON.stringify(jsonData, null, 2)
+
+            // Create a Blob containing the JSON data
+            var blob = new Blob([jsonString], {
+                type: 'application/json'
+            });
+
+            // Create a link element to trigger the download
+            var a = document.createElement('a')
+            a.href = URL.createObjectURL(blob)
+            a.download = 'data.json'
+
+            // Append the link to the document and trigger the download
+            document.body.appendChild(a)
+            a.click();
+
+            // Clean up: remove the link element
+            document.body.removeChild(a)
+        }
+
+
         $(document).ready(function() {
-            $('body').on('click', '.add', function() {
-                const rows = $("#rundown").find("tr")
-                    //console.log(rows[rows.length - 2])
-                const lastEl = rows[rows.length - 2]
+            $('body').on('click', '#add', function() {
+                var rows = $("#rundown").find(`tr[class="userinput"]`)
+                const lastEl = rows[rows.length - 1]
                 var index = lastEl.getAttribute('data-index')
                 index = Number(index)
-                    //console.log(index)
                 const startTime = $(`tr[data-index=${index}] > td[data-field="endTime"] > input`).val()
-                    //console.log(startTime)
                 if (startTime != "") {
                     index++
-                    //console.log(index)
                     $('#lastrow').before(`
                     <tr data-index=${index} class="userinput">
                     <td class="editable id"  data-field="id">${index}</td>
@@ -255,6 +307,7 @@
                     </tr>
                     `)
                     $(`tr[data-index=${index}] > td[data-field="startTime"] > input`).val(startTime)
+                    $(`tr[data-index=${index}] > td[data-field="startTime"] > input`).focus()
                 }
             })
 
@@ -269,6 +322,51 @@
                     updateTableRemove(index, ogStart)
                 } else {
                     alert(`You must have at least 1 segment!`)
+                }
+            })
+
+            $('body').on('click', '.duplicate', function() {
+                var index = $(this).parent().parent().attr('data-index')
+                index = Number(index)
+                var rows = $("#rundown").find(`tr[class="userinput"]`)
+                var ogDuration = $(`tr[data-index=${index}] > td[data-field="duration"] > input`).val()
+                var ogInfo = []
+                for (var x = 5; x < 11; x++) {
+                    ogInfo.push($(`tr[data-index=${index}] > td:nth-child(${x}) > input`).val())
+                    console.log('pushed, iteracio: ' + x)
+                }
+                console.log(ogInfo)
+
+                const lastEl = rows[rows.length - 1]
+                var last_index = lastEl.getAttribute('data-index')
+                last_index = Number(last_index)
+                const startTime = $(`tr[data-index=${last_index}] > td[data-field="endTime"] > input`).val()
+                if (startTime != "") {
+                    last_index++
+                    $('#lastrow').before(`
+                    <tr data-index=${last_index} class="userinput">
+                    <td class="editable id"  data-field="id">${last_index}</td>
+                    <td class="editable time"  data-field="startTime"><input></td>
+                    <td class="editable time"  data-field="endTime"><input></td>
+                    <td class="editable time"  data-field="duration"><input></td>
+                    <td class="editable"  data-field="title"><input></td>
+                    <td class="editable"  data-field="pgm"><input></td>
+                    <td class="editable"  data-field="evs"><input></td>
+                    <td class="editable"  data-field="cg"><input></td>
+                    <td class="editable"  data-field="audio"><input></td>
+                    <td class="editable"  data-field="notes"><input></td>
+                    <td>
+                    <button class="duplicate">DUPLICATE</button>
+                    <button class="remove">REMOVE</button>
+                    </td>
+                    </tr>
+                    `)
+                    $(`tr[data-index=${last_index}] > td[data-field="startTime"] > input`).val(startTime)
+                    $(`tr[data-index=${last_index}] > td[data-field="duration"] > input`).val(ogDuration)
+                    $(`tr[data-index=${last_index}] > td[data-field="endTime"] > input`).val(calculateEndTime(startTime, ogDuration))
+                    for (var y = 5; y < 11; y++) {
+                        $(`tr[data-index=${last_index}] > td:nth-child(${y}) > input`).val(ogInfo[y - 5])
+                    }
                 }
             })
 
@@ -290,6 +388,11 @@
                         }
                     }
                 }
+            })
+
+            $(document).bind('keydown', 'Shift+return', function() {
+                //alert('triggered')
+                $('#add').click()
             })
         })
     </script>
