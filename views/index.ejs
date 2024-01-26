@@ -83,7 +83,8 @@
     <button class="btn btn-secondary" onclick="loadJSON()">Load</button>
 
     <table class="table table-striped table-dark table-hover table-sm" id="rundown">
-        <colgroup>
+        <!--
+                    <colgroup>
             <col span="1" style="width: 3%;">
             <col span="1" style="width: 6%;">
             <col span="1" style="width: 6%;">
@@ -95,6 +96,8 @@
             <col span="1" style="width: 10%;">
             <col span="1" style="width: 13%;">
         </colgroup>
+        -->
+
         <tr>
             <th scope="col">#</th>
             <th scope="col">Start Time</th>
@@ -375,7 +378,7 @@
                 </tr>
 
                 <tr id="lastrow">
-                    <td class="editable addrow btn btn-success" colspan="11"><button class="btn btn-success" id="add">ADD</button></td>
+                    <td class="editable addrow " colspan="11"><button class="btn btn-success" id="add">📝</button></td>
                 </tr>
                 `
 
@@ -385,14 +388,17 @@
                     const row = document.createElement('tr')
                     Object.entries(item).forEach(([key, value]) => {
                         console.log(`value: ${value}, key: ${key}`)
-                        const cell = document.createElement('td')
+                        var cell
                         const input = document.createElement('input')
                         if (key == "id") {
+                            cell = document.createElement('th')
                             row.dataset.index = value
                             cell.className = 'editable id'
                         } else if (key == "startTime" || key == "endTime" || key == "duration") {
+                            cell = document.createElement('td')
                             cell.className = 'editable time'
                         } else {
+                            cell = document.createElement('td')
                             cell.className = 'editable'
                         }
                         cell.dataset.field = key
@@ -400,8 +406,9 @@
 
                             cell.textContent = value
                         } else {
-                            input.type = 'text'
+                            //input.type = 'text'
                             input.value = value
+                            input.className = 'form-control-sm'
                             cell.appendChild(input)
                         }
 
@@ -421,9 +428,51 @@
             }
         }
 
+        function sendMessage(socket) {
+            var message = generateSocketMessage()
+            console.log(JSON.stringify(message))
+            socket.send(JSON.stringify(message))
+        }
+
+        function generateSocketMessage() {
+            // Get the table element
+            var table = document.getElementById('rundown')
+
+            // Get the table headers
+            var headers = []
+            var headerRow = table.rows[1]
+            for (var i = 0; i < headerRow.cells.length - 1; i++) {
+                headers.push(headerRow.cells[i].getAttribute('data-field'))
+            }
+
+            // Create an array to store the JSON objects
+            var jsonData = []
+
+            // Iterate through each row and create JSON objects
+            for (var i = 1; i < table.rows.length - 1; i++) {
+                var row = table.rows[i]
+                var rowData = {}
+
+                for (var j = 0; j < row.cells.length - 1; j++) {
+                    var inputField = row.cells[j].querySelector('input')
+                    if (inputField) {
+                        rowData[headers[j]] = inputField.value
+                    } else {
+                        rowData[headers[j]] = row.cells[j].textContent
+                    }
+                }
+
+                jsonData.push(rowData);
+            }
+
+            return jsonData
+        }
+
 
 
         $(document).ready(function() {
+            const socket = new WebSocket('ws://localhost:13136')
+
             $('body').on('click', '#add', function() {
                 var rows = $("#rundown").find(`tr[class="userinput"]`)
                 const lastEl = rows[rows.length - 1]
@@ -453,6 +502,7 @@
                     $(`tr[data-index=${index}] > td[data-field="startTime"] > input`).val(startTime)
                     $(`tr[data-index=${index}] > td[data-field="startTime"] > input`).focus()
                 }
+                sendMessage(socket)
             })
 
             $('body').on('click', '.remove', function() {
@@ -468,6 +518,7 @@
                     alert(`You must have at least 1 segment!`)
                         //$('.alert').alert()
                 }
+                sendMessage(socket)
             })
 
             $('body').on('click', '.duplicate', function() {
@@ -513,6 +564,7 @@
                         $(`tr[data-index=${last_index}] > td:nth-child(${y}) > input`).val(ogInfo[y - 5])
                     }
                 }
+                sendMessage(socket)
             })
 
             $('body').on('keyup', 'input', function(event) {
@@ -531,9 +583,15 @@
                         if ($(this).parent().attr('data-field') == 'endTime') {
                             updatedEndTime(Number($(this).parent().parent().attr('data-index')))
                         }
+                        sendMessage(socket)
                     }
                 }
             })
+
+            $('body').on('input', 'input', function(event) {
+                sendMessage(socket)
+            })
+
 
             $(document).bind('keydown', 'Shift+return', function() {
                 //alert('triggered')
