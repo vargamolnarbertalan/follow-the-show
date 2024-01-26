@@ -41,7 +41,7 @@
     <h1>Show Flow Manager</h1>
     <h1 id="project_name">Project name: <input id="project-name"></h1>
     <button onclick="downloadJson()">Download JSON</button>
-
+    <button onclick="loadJSON()">Load JSON</button>
 
     <table id="rundown">
         <tr>
@@ -234,14 +234,14 @@
             var headers = []
             var headerRow = table.rows[1]
             for (var i = 0; i < headerRow.cells.length - 1; i++) {
-                headers.push(headerRow.cells[i].getAttribute('data-field').toLowerCase())
+                headers.push(headerRow.cells[i].getAttribute('data-field'))
             }
 
             // Create an array to store the JSON objects
             var jsonData = []
 
             // Iterate through each row and create JSON objects
-            for (var i = 1; i < table.rows.length; i++) {
+            for (var i = 1; i < table.rows.length - 1; i++) {
                 var row = table.rows[i];
                 var rowData = {};
 
@@ -277,6 +277,99 @@
             // Clean up: remove the link element
             document.body.removeChild(a)
         }
+
+        function loadJSON() {
+            // Create an input element of type file
+            const input = document.createElement('input')
+            input.type = 'file'
+
+            // Set up an event listener for the file input change
+            input.addEventListener('change', handleFile)
+
+            // Trigger a click on the file input to open the file dialog
+            input.click()
+
+            function handleFile(event) {
+                const file = event.target.files[0]
+
+                if (file) {
+                    // Read the content of the file as text
+                    const reader = new FileReader()
+                    reader.onload = function(e) {
+                        const jsonData = JSON.parse(e.target.result)
+                        populateTable(jsonData)
+                    }
+                    reader.readAsText(file)
+                }
+            }
+
+            function populateTable(jsonData) {
+                const table = document.getElementById('rundown')
+
+                // Clear existing table content
+                table.innerHTML =
+                    `
+                <tr>
+                    <th>#</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Duration</th>
+                    <th>Title</th>
+                    <th>PGM</th>
+                    <th>EVS</th>
+                    <th>CG</th>
+                    <th>AUDIO</th>
+                    <th>Notes</th>
+                    <th>ACTIONS</th>
+                </tr>
+
+                <tr id="lastrow">
+                    <td class="editable addrow" colspan="11"><button id="add">ADD</button></td>
+                </tr>
+                `
+
+                // Create table rows from JSON data
+
+                jsonData.forEach(item => {
+                    const row = document.createElement('tr')
+                    Object.entries(item).forEach(([key, value]) => {
+                        console.log(`value: ${value}, key: ${key}`)
+                        const cell = document.createElement('td')
+                        const input = document.createElement('input')
+                        if (key == "id") {
+                            row.dataset.index = value
+                            cell.className = 'editable id'
+                        } else if (key == "startTime" || key == "endTime" || key == "duration") {
+                            cell.className = 'editable time'
+                        } else {
+                            cell.className = 'editable'
+                        }
+                        cell.dataset.field = key
+                        if (key == "id") {
+
+                            cell.textContent = value
+                        } else {
+                            input.type = 'text'
+                            input.value = value
+                            cell.appendChild(input)
+                        }
+
+
+                        row.className = "userinput"
+                        row.appendChild(cell)
+                    })
+                    console.log('---') // Separating each object for clarity
+                    const additionalCell = document.createElement('td')
+                    additionalCell.innerHTML = `
+                        <button class="duplicate">DUPLICATE</button>
+                        <button class="remove">REMOVE</button>
+                    `
+                    row.appendChild(additionalCell)
+                    $('#lastrow').before(row)
+                })
+            }
+        }
+
 
 
         $(document).ready(function() {
