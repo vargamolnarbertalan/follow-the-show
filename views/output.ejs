@@ -63,6 +63,10 @@
             -webkit-box-sizing: border-box;
             -moz-box-sizing: border-box;
         }
+        td:nth-child(2), td:nth-child(3), td:nth-child(4){
+            font-weight: bold;
+            color:cyan
+        }
     </style>
 </head>
 
@@ -87,12 +91,11 @@
             <col span="1" style="width: 6%;">
             <col span="1" style="width: 6%;">
             <col span="1" style="width: 6%;">
-            <col span="1" style="width: 10%;">
-            <col span="1" style="width: 6%;">
+            <col span="1" style="width: 20%;">
+            <col span="1" style="width: 9%;">
             <col span="1" style="width: 25%;">
             <col span="1" style="width: 15%;">
             <col span="1" style="width: 10%;">
-            <col span="1" style="width: 13%;">
         </colgroup>
 
 
@@ -107,7 +110,6 @@
             <th scope="col">CG</th>
             <th scope="col">AUDIO</th>
             <th scope="col">Notes</th>
-            <th scope="col">ACTIONS</th>
         </tr>
 
         <tr data-index=1 class="userinput">
@@ -121,9 +123,6 @@
                 <td class="editable" data-field="cg"></td>
                 <td class="editable" data-field="audio"></td>
                 <td class="editable" data-field="notes"></td>
-                <td>
-                    <button class="btn btn-primary done">DONE</button>
-                </td>
         </tr>
 
         <tr id="lastrow">
@@ -133,10 +132,37 @@
     </table>
 
     <script>
+    var getUrlParameter = function getUrlParameter(sParam) {
+        var sPageURL = window.location.search.substring(1),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+        return false;
+    };
+
         $(document).ready(function() {
-            const socket = new WebSocket('ws://localhost:13136')
+            var hide_num = 1
+            const server_ip = getUrlParameter('ip')
+            console.log('socket server:' + server_ip)
+            const socket = new WebSocket(`ws://${server_ip}:13136`)
+                
+            socket.addEventListener('open', function (event) {
+                console.log('WebSocket connection is open!')
+                socket.send('LOADED')
+            })
+            
             socket.onmessage = (event) => {
-                var gotObj = JSON.parse(event.data)
+                console.log(event.data)
+                if(event.data != 'HIDENEXT'){
+                    var gotObj = JSON.parse(event.data)
                     //console.log(gotObj)
                 const table = document.getElementById('rundown')
 
@@ -148,12 +174,12 @@
                         <col span="1" style="width: 6%;">
                         <col span="1" style="width: 6%;">
                         <col span="1" style="width: 6%;">
-                        <col span="1" style="width: 10%;">
-                        <col span="1" style="width: 6%;">
-                        <col span="1" style="width: 25%;">
                         <col span="1" style="width: 15%;">
-                        <col span="1" style="width: 10%;">
+                        <col span="1" style="width: 9%;">
+                        <col span="1" style="width: 20%;">
                         <col span="1" style="width: 13%;">
+                        <col span="1" style="width: 12%;">
+                        <col span="1" style="width: 10%;">
                     </colgroup>
                 <tr>
                     <th scope="col">#</th>
@@ -166,7 +192,6 @@
                     <th scope="col">CG</th>
                     <th scope="col">AUDIO</th>
                     <th scope="col">Notes</th>
-                    <th scope="col">ACTIONS</th>
                 </tr>
 
                 <tr id="lastrow">
@@ -182,14 +207,14 @@
                         cell.textContent = val
                         row.appendChild(cell)
                     })
-
-                    const additionalCell = document.createElement('td')
-                    additionalCell.innerHTML = `
-                        <button class="btn btn-primary done">DONE</button>
-                    `
-                    row.appendChild(additionalCell)
                     $('#lastrow').before(row)
                 }
+                }
+                else{
+                    $(`tr:nth-child(${hide_num})`).css('opacity','15%')
+                    hide_num++
+                }
+
             }
 
         })
