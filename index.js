@@ -17,7 +17,7 @@ var lastMSG
 
 wss.on('connection', (ws) => {
     ws.on('message', (message) => {
-        console.log(message.toString())
+        //console.log(message.toString())
         if(message.toString() == 'LOADED'){
             wss.clients.forEach((client) => {
                 client.send(lastMSG)
