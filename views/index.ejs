@@ -63,6 +63,9 @@
             -webkit-box-sizing: border-box;
             -moz-box-sizing: border-box;
         }
+        .id > input{
+            width: 40px;
+        }
     </style>
 </head>
 
@@ -113,7 +116,7 @@
         </tr>
 
         <tr data-index=1 class="userinput">
-            <th class="editable id" data-field="id">1</td>
+            <th class="editable id" data-field="id"><input class="form-control-sm" value=1></td>
                 <td class="editable time" data-field="startTime"><input class="form-control-sm"></td>
                 <td class="editable time" data-field="endTime"><input class="form-control-sm"></td>
                 <td class="editable time" data-field="duration"><input class="form-control-sm"></td>
@@ -239,8 +242,8 @@
                 for (var i = deletedIndex; i < rows.length + 1; i++) {
                     if (i == 1) {
                         console.log('iteracio: ' + i)
-                        $(`tr[data-index=${i+1}] > th[data-field="id"]`).text(i)
-                        $(`tr[data-index=${i+1}] > th[data-field="id"]`).val(i)
+                        //$(`tr[data-index=${i+1}] > th[data-field="id"]`).text(i)
+                        $(`tr[data-index=${i+1}] > th[data-field="id"] > input`).val(i)
 
                         const duration = $(`tr[data-index=${i+1}] > td[data-field="duration"] > input`).val()
                         console.log('ogStart: ' + ogStart)
@@ -253,8 +256,8 @@
                         $(`tr[data-index=${i+1}]`).attr('data-index', i)
                     } else {
                         console.log('iteracio: ' + i)
-                        $(`tr[data-index=${i+1}] > th[data-field="id"]`).text(i)
-                        $(`tr[data-index=${i+1}] > th[data-field="id"]`).val(i)
+                        //$(`tr[data-index=${i+1}] > th[data-field="id"]`).text(i)
+                        $(`tr[data-index=${i+1}] > th[data-field="id"] > input`).val(i)
                         const prevEndTime = $(`tr[data-index=${i-1}] > td[data-field="endTime"] > input`).val()
                         console.log(prevEndTime)
                         const duration = $(`tr[data-index=${i+1}] > td[data-field="duration"] > input`).val()
@@ -268,8 +271,8 @@
             } else {
                 for (var i = deletedIndex; i < rows.length + 1; i++) {
                     console.log('iteracio: ' + i)
-                    $(`tr[data-index=${i+1}] > th[data-field="id"]`).text(i)
-                    $(`tr[data-index=${i+1}] > th[data-field="id"]`).val(i)
+                    //$(`tr[data-index=${i+1}] > th[data-field="id"]`).text(i)
+                    $(`tr[data-index=${i+1}] > th[data-field="id"] > input`).val(i)
                     const prevEndTime = $(`tr[data-index=${i-1}] > td[data-field="endTime"] > input`).val()
                     console.log(prevEndTime)
                     const duration = $(`tr[data-index=${i+1}] > td[data-field="duration"] > input`).val()
@@ -305,10 +308,6 @@
                     var inputField = row.cells[j].querySelector('input');
                     if (inputField) {
                         rowData[headers[j]] = inputField.value;
-                    } else {
-                        var idElement = row.cells[j].textContent
-                        idElement = idElement.replace(/[^0-9]/g, '')
-                        rowData[headers[j]] = idElement
                     }
                 }
                 console.log(rowData)
@@ -414,15 +413,12 @@
                             cell.className = 'editable'
                         }
                         cell.dataset.field = key
-                        if (key == "id") {
 
-                            cell.textContent = value
-                        } else {
-                            //input.type = 'text'
-                            input.value = value
-                            input.className = 'form-control-sm'
-                            cell.appendChild(input)
-                        }
+                        //input.type = 'text'
+                        input.value = value
+                        input.className = 'form-control-sm'
+                        cell.appendChild(input)
+                        
 
 
                         row.className = "userinput"
@@ -470,11 +466,8 @@
 
                 for (var j = 0; j < row.cells.length - 1; j++) {
                     var inputField = row.cells[j].querySelector('input')
-                    if (inputField) {
-                        rowData[headers[j]] = inputField.value
-                    } else {
-                        rowData[headers[j]] = row.cells[j].textContent
-                    }
+                    rowData[headers[j]] = inputField.value
+
                 }
 
                 jsonData.push(rowData);
@@ -502,7 +495,7 @@
                     index++
                     $('#lastrow').before(`
                     <tr data-index=${index} class="userinput">
-                    <th class="editable id"  data-field="id">${index}</td>
+                    <th class="editable id"  data-field="id"><input class="form-control-sm"></td>
                     <td class="editable time"  data-field="startTime"><input class="form-control-sm"></td>
                     <td class="editable time"  data-field="endTime"><input class="form-control-sm"></td>
                     <td class="editable time"  data-field="duration"><input class="form-control-sm"></td>
@@ -518,6 +511,7 @@
                     </td>
                     </tr>
                     `)
+                    $(`tr[data-index=${index}] > th[data-field="id"] > input`).val(index)
                     $(`tr[data-index=${index}] > td[data-field="startTime"] > input`).val(startTime)
                     $(`tr[data-index=${index}] > td[data-field="startTime"] > input`).focus()
                 }
@@ -568,7 +562,7 @@
                     last_index++
                     $('#lastrow').before(`
                     <tr data-index=${last_index} class="userinput">
-                    <th class="editable id"  data-field="id">${last_index}</td>
+                    <th class="editable id"  data-field="id"><input class="form-control-sm"></td>
                     <td class="editable time"  data-field="startTime"><input class="form-control-sm"></td>
                     <td class="editable time"  data-field="endTime"><input class="form-control-sm"></td>
                     <td class="editable time"  data-field="duration"><input class="form-control-sm"></td>
@@ -584,6 +578,7 @@
                     </td>
                     </tr>
                     `)
+                    $(`tr[data-index=${last_index}] > th[data-field="id"] > input`).val(last_index)
                     $(`tr[data-index=${last_index}] > td[data-field="startTime"] > input`).val(startTime)
                     $(`tr[data-index=${last_index}] > td[data-field="duration"] > input`).val(ogDuration)
                     $(`tr[data-index=${last_index}] > td[data-field="endTime"] > input`).val(calculateEndTime(startTime, ogDuration))
