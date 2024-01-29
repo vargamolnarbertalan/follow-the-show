@@ -237,7 +237,7 @@
         function updateTableRemove(deletedIndex, ogStart) {
             deletedIndex = Number(deletedIndex)
             var rows = $("#rundown").find(`tr[class="userinput"]`)
-            console.log(rows)
+            //console.log(rows)
             if (deletedIndex == 1) {
                 for (var i = deletedIndex; i < rows.length + 1; i++) {
                     if (i == 1) {
@@ -284,6 +284,25 @@
             }
 
         }
+
+        function updatedId(index, htmlElementObj, ogIndex) {
+            var htmlElement = htmlElementObj[0]
+            console.log(htmlElement)
+            index = Number(index)
+            console.log('index: ' + index + ', ogindex: ' + ogIndex)
+            var rows = $("#rundown").find(`tr[class="userinput"]`)
+            $(`#rundown > tbody > tr:nth-child(${index+1})`).before(htmlElement)
+            for(var i = 3; i < rows.length; i++){
+                const prevEnd = $(`#rundown > tbody > tr:nth-child(${i-1}) > td[data-field="endTime"] > input`).val()
+                const duration = $(`#rundown > tbody > tr:nth-child(${i}) > td[data-field="duration"] > input`).val()
+
+                $(`#rundown > tbody > tr:nth-child(${i})`).attr('data-index', i-1)
+                $(`#rundown > tbody > tr:nth-child(${i}) > th > input`).val(i-1)
+                $(`#rundown > tbody > tr:nth-child(${i}) > td[data-field="startTime"] > input`).val(prevEnd)
+                $(`#rundown > tbody > tr:nth-child(${i}) > td[data-field="endTime"] > input`).val( calculateEndTime(prevEnd, duration) )
+            }
+        }
+
 
         function downloadJson() {
             // Get the table element
@@ -594,6 +613,13 @@
                     if ($(this).parent().hasClass('time') && !(isValidTimeFormat($(this).val()))) {
                         alert('Invalid format')
                         $(this).val("")
+                    } else if($(this).parent().hasClass('id')) {
+                        var index = $(this).val()
+                        const ogIndex = $(this).parent().parent().attr('data-index')
+                        const element = $(this).parent().parent()
+                        $(this).parent().parent().remove()
+                        updatedId(Number(index), element, ogIndex)
+                        sendMessage(socket)
                     } else {
                         $(this).blur()
                         if ($(this).parent().attr('data-field') == 'startTime') {
