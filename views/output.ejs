@@ -64,10 +64,14 @@
             -webkit-box-sizing: border-box;
             -moz-box-sizing: border-box;
         }
-        td:nth-child(2), td:nth-child(3), td:nth-child(4){
+        
+        td:nth-child(2),
+        td:nth-child(3),
+        td:nth-child(4) {
             font-weight: bold;
-            color:cyan
+            color: cyan
         }
+        
         tr:nth-child(1) {
             background-color: hsl(0, 0%, 0%) !important;
             color: white !important;
@@ -76,7 +80,6 @@
             /* border-bottom: 5px solid white !important; */
             box-shadow: inset 0 0 0 #ffffff, inset 0 -4px 0 #ffffff;
         }
-
     </style>
 </head>
 
@@ -142,43 +145,54 @@
     </table>
 
     <script>
-    var getUrlParameter = function getUrlParameter(sParam) {
-        var sPageURL = window.location.search.substring(1),
-            sURLVariables = sPageURL.split('&'),
-            sParameterName,
-            i;
+        var getUrlParameter = function getUrlParameter(sParam) {
+            var sPageURL = window.location.search.substring(1),
+                sURLVariables = sPageURL.split('&'),
+                sParameterName,
+                i
 
-        for (i = 0; i < sURLVariables.length; i++) {
-            sParameterName = sURLVariables[i].split('=');
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=')
 
-            if (sParameterName[0] === sParam) {
-                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1])
+                }
             }
+            return false
         }
-        return false;
-    };
 
         $(document).ready(function() {
-            var hide_num = 2
             const server_ip = getUrlParameter('ip')
-            console.log('socket server:' + server_ip)
+            console.log('socket server: ' + server_ip)
             const socket = new WebSocket(`ws://${server_ip}:13136`)
-                
-            socket.addEventListener('open', function (event) {
-                console.log('WebSocket connection is open!')
-                socket.send('LOADED')
-            })
-            
-            socket.onmessage = (event) => {
-                //console.log(event.data)
-                if(event.data != 'HIDENEXT'){
-                    var gotObj = JSON.parse(event.data)
-                    //console.log(gotObj)
-                const table = document.getElementById('rundown')
 
-                // Clear existing table content
-                table.innerHTML =
-                    `
+            socket.addEventListener('open', function(event) {
+                console.log('WebSocket connection is open!')
+            })
+
+            socket.onmessage = (event) => {
+                if (String(event.data).includes('HIDENEXT')) {
+                    var hide_num = String(event.data).replace(/[^0-9]/g, '')
+                    hide_num = Number(hide_num)
+                        //console.log(`hid nth child: ${hide_num}`)
+                    for (var i = 2; i < hide_num + 1; i++) {
+                        $(`tr:nth-child(${i})`).css('opacity', '15%')
+                    }
+
+                } else if (event.data == 'Initial data') {
+                    //console.log(event.data)
+                } else if (event.data == 'HIDERESET') {
+                    for (var i = 2; i < 1000; i++) {
+                        $(`tr:nth-child(${i})`).css('opacity', '100%')
+                    }
+                } else {
+                    var gotObj = JSON.parse(event.data)
+                        //console.log(gotObj)
+                    const table = document.getElementById('rundown')
+
+                    // Clear existing table content
+                    table.innerHTML =
+                        `
                     <colgroup>
                         <col span="1" style="width: 3%;">
                         <col span="1" style="width: 6%;">
@@ -208,21 +222,19 @@
                     <td class="editable addrow" colspan="11"></td>
                 </tr>
                 `
-                for (var i = 0; i < gotObj.length - 1; i++) {
-                    const row = document.createElement('tr')
-                    Object.values(gotObj[i]).forEach(val => {
-                        const cell = document.createElement('td')
-                        cell.textContent = val
-                        row.appendChild(cell)
-                    })
-                    $('#lastrow').before(row)
+                    for (var i = 0; i < gotObj.length - 1; i++) {
+                        const row = document.createElement('tr')
+                        Object.values(gotObj[i]).forEach(val => {
+                            const cell = document.createElement('td')
+                            cell.textContent = val
+                            row.appendChild(cell)
+                        })
+                        $('#lastrow').before(row)
+                    }
+                    $('#project-name').text(gotObj[gotObj.length - 1].projectName)
                 }
-                $('#project-name').text(gotObj[gotObj.length-1].projectName)
-                }
-                else{
-                    $(`tr:nth-child(${hide_num})`).css('opacity','15%')
-                    hide_num++
-                }
+
+
 
             }
 

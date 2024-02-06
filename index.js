@@ -14,21 +14,17 @@ const server = http.createServer(app)
 const wss = new WebSocket.Server({ port: 13136 })
 
 var lastMSG
+var globalHideCount = 2
 
 wss.on('connection', (ws) => {
+    ws.send('Initial data')
+    ws.send(lastMSG)
     ws.on('message', (message) => {
-        //console.log(message.toString())
-        if(message.toString() == 'LOADED'){
-            wss.clients.forEach((client) => {
-                client.send(lastMSG)
-            })
-        }
-        // Broadcast the received message to all connected clients
+
         wss.clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
                 var object = message.toString()
-                    //console.log(object)
-                    lastMSG = object
+                lastMSG = object
                 client.send(object)
             }
         })
@@ -44,17 +40,27 @@ app.get('/follow', (req, res) => {
 })
 
 app.get('/hidenext', (req, res) => {
-
     wss.clients.forEach((client) => {
         // Send a message to all connected WebSocket clients
-        client.send('HIDENEXT')
-      })
-    
-      res.send('DONE')
+        client.send(`HIDENEXT:${globalHideCount}`)
 
+    })
+    globalHideCount++
+    res.send('DONE')
+
+})
+
+app.get('/hidereset', (req, res) => {
+    globalHideCount = 2
+    wss.clients.forEach((client) => {
+        // Send a message to all connected WebSocket clients
+        client.send(`HIDERESET`)
+
+    })
+
+    res.send('RESET DONE')
 })
 
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`)
 })
-

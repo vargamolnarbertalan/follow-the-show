@@ -63,7 +63,8 @@
             -webkit-box-sizing: border-box;
             -moz-box-sizing: border-box;
         }
-        .id > input{
+        
+        .id>input {
             width: 40px;
         }
     </style>
@@ -139,6 +140,16 @@
     </table>
 
     <script>
+        var globalSocket
+
+        function getGlobalSocket() {
+            return globalSocket
+        }
+
+        function setGlobalSocket(socketObject) {
+            globalSocket = socketObject
+        }
+
         function calculateDuration(startTime, endTime) {
             // Parse input strings using Moment.js
             var startMoment = moment(startTime, 'HH:mm:ss')
@@ -175,9 +186,9 @@
 
             endTimeEl.val(calculateEndTime(startTimeEl.val(), durationEl.val()))
             const start = index + 1
-            //console.log('start: ' + start)
+                //console.log('start: ' + start)
             const stop = rows.length + 1
-            //console.log('stop: ' + stop)
+                //console.log('stop: ' + stop)
             for (var i = start; i < stop; i++) {
                 //console.log('start recalc iteracio: ' + i)
                 $(`tr[data-index=${i}] > td[data-field="startTime"] > input`).val($(`tr[data-index=${i-1}] > td[data-field="endTime"] > input`).val())
@@ -194,9 +205,9 @@
             durationEl.val(calculateDuration(startTimeEl.val(), endTimeEl.val()))
 
             const start = index + 1
-            //console.log('start: ' + start)
+                //console.log('start: ' + start)
             const stop = rows.length + 1
-            //console.log('stop: ' + stop)
+                //console.log('stop: ' + stop)
             for (var i = start; i < stop; i++) {
                 //console.log('start recalc iteracio: ' + i)
                 $(`tr[data-index=${i}] > td[data-field="startTime"] > input`).val($(`tr[data-index=${i-1}] > td[data-field="endTime"] > input`).val())
@@ -213,9 +224,9 @@
             endTimeEl.val(calculateEndTime(startTimeEl.val(), durationEl.val()))
 
             const start = index + 1
-            //console.log('start: ' + start)
+                //console.log('start: ' + start)
             const stop = rows.length + 1
-            //console.log('stop: ' + stop)
+                //console.log('stop: ' + stop)
             for (var i = start; i < stop; i++) {
                 //console.log('start recalc iteracio: ' + i)
                 $(`tr[data-index=${i}] > td[data-field="startTime"] > input`).val($(`tr[data-index=${i-1}] > td[data-field="endTime"] > input`).val())
@@ -237,12 +248,12 @@
         function updateTableRemove(deletedIndex, ogStart) {
             deletedIndex = Number(deletedIndex)
             var rows = $("#rundown").find(`tr[class="userinput"]`)
-            //console.log(rows)
+                //console.log(rows)
             if (deletedIndex == 1) {
                 for (var i = deletedIndex; i < rows.length + 1; i++) {
                     if (i == 1) {
                         console.log('iteracio: ' + i)
-                        //$(`tr[data-index=${i+1}] > th[data-field="id"]`).text(i)
+                            //$(`tr[data-index=${i+1}] > th[data-field="id"]`).text(i)
                         $(`tr[data-index=${i+1}] > th[data-field="id"] > input`).val(i)
 
                         const duration = $(`tr[data-index=${i+1}] > td[data-field="duration"] > input`).val()
@@ -256,7 +267,7 @@
                         $(`tr[data-index=${i+1}]`).attr('data-index', i)
                     } else {
                         console.log('iteracio: ' + i)
-                        //$(`tr[data-index=${i+1}] > th[data-field="id"]`).text(i)
+                            //$(`tr[data-index=${i+1}] > th[data-field="id"]`).text(i)
                         $(`tr[data-index=${i+1}] > th[data-field="id"] > input`).val(i)
                         const prevEndTime = $(`tr[data-index=${i-1}] > td[data-field="endTime"] > input`).val()
                         console.log(prevEndTime)
@@ -271,7 +282,7 @@
             } else {
                 for (var i = deletedIndex; i < rows.length + 1; i++) {
                     console.log('iteracio: ' + i)
-                    //$(`tr[data-index=${i+1}] > th[data-field="id"]`).text(i)
+                        //$(`tr[data-index=${i+1}] > th[data-field="id"]`).text(i)
                     $(`tr[data-index=${i+1}] > th[data-field="id"] > input`).val(i)
                     const prevEndTime = $(`tr[data-index=${i-1}] > td[data-field="endTime"] > input`).val()
                     console.log(prevEndTime)
@@ -287,20 +298,28 @@
 
         function updatedId(index, htmlElementObj, ogIndex) {
             var htmlElement = htmlElementObj[0]
-            console.log(htmlElement)
             index = Number(index)
-            console.log('index: ' + index + ', ogindex: ' + ogIndex)
-            var rows = $("#rundown").find(`tr[class="userinput"]`)
+            const firstStart = $(`#rundown > tbody > tr:nth-child(2) > td[data-field="startTime"] > input`).val()
             $(`#rundown > tbody > tr:nth-child(${index+1})`).before(htmlElement)
-            for(var i = 3; i < rows.length; i++){
+            var rows = $("#rundown").find(`tr[class="userinput"]`)
+            if (index == 1) {
+                const firstDuration = $(`#rundown > tbody > tr:nth-child(2) > td[data-field="duration"] > input`).val()
+                $(`#rundown > tbody > tr:nth-child(2)`).attr('data-index', 1)
+                $(`#rundown > tbody > tr:nth-child(2) > td[data-field="startTime"] > input`).val(firstStart)
+                $(`#rundown > tbody > tr:nth-child(2) > td[data-field="endTime"] > input`).val(calculateEndTime(firstStart, firstDuration))
+            }
+
+            for (var i = 3; i < rows.length + 2; i++) {
+                $(`#rundown > tbody > tr:nth-child(${i})`).attr('data-index', i - 1)
                 const prevEnd = $(`#rundown > tbody > tr:nth-child(${i-1}) > td[data-field="endTime"] > input`).val()
                 const duration = $(`#rundown > tbody > tr:nth-child(${i}) > td[data-field="duration"] > input`).val()
-
-                $(`#rundown > tbody > tr:nth-child(${i})`).attr('data-index', i-1)
-                $(`#rundown > tbody > tr:nth-child(${i}) > th > input`).val(i-1)
+                $(`#rundown > tbody > tr:nth-child(${i}) > th > input`).val(i - 1)
                 $(`#rundown > tbody > tr:nth-child(${i}) > td[data-field="startTime"] > input`).val(prevEnd)
-                $(`#rundown > tbody > tr:nth-child(${i}) > td[data-field="endTime"] > input`).val( calculateEndTime(prevEnd, duration) )
+                $(`#rundown > tbody > tr:nth-child(${i}) > td[data-field="endTime"] > input`).val(calculateEndTime(prevEnd, duration))
+
             }
+
+
         }
 
 
@@ -410,42 +429,41 @@
 
                 // Create table rows from JSON data
 
-                for(var i = 0; i < jsonData.length - 1; i++){
+                for (var i = 0; i < jsonData.length - 1; i++) {
                     const row = document.createElement('tr')
                     Object.entries(jsonData[i]).forEach(([key, value]) => {
-                        if(key == 'projectName'){
-                            $('#project-name').val(value)
-                        }
-                        else{
-                        //console.log(`value: ${value}, key: ${key}`)
-                        var cell
-                        const input = document.createElement('input')
-                        if (key == "id") {
-                            cell = document.createElement('th')
-                            row.dataset.index = value
-                            cell.className = 'editable id'
-                        } else if (key == "startTime" || key == "endTime" || key == "duration") {
-                            cell = document.createElement('td')
-                            cell.className = 'editable time'
-                        } else {
-                            cell = document.createElement('td')
-                            cell.className = 'editable'
-                        }
-                        cell.dataset.field = key
+                            if (key == 'projectName') {
+                                $('#project-name').val(value)
+                            } else {
+                                //console.log(`value: ${value}, key: ${key}`)
+                                var cell
+                                const input = document.createElement('input')
+                                if (key == "id") {
+                                    cell = document.createElement('th')
+                                    row.dataset.index = value
+                                    cell.className = 'editable id'
+                                } else if (key == "startTime" || key == "endTime" || key == "duration") {
+                                    cell = document.createElement('td')
+                                    cell.className = 'editable time'
+                                } else {
+                                    cell = document.createElement('td')
+                                    cell.className = 'editable'
+                                }
+                                cell.dataset.field = key
 
-                        //input.type = 'text'
-                        input.value = value
-                        input.className = 'form-control-sm'
-                        cell.appendChild(input)
-                        
+                                //input.type = 'text'
+                                input.value = value
+                                input.className = 'form-control-sm'
+                                cell.appendChild(input)
 
 
-                        row.className = "userinput"
-                        row.appendChild(cell)
-                        }
 
-                    })
-                    //console.log('---') // Separating each object for clarity
+                                row.className = "userinput"
+                                row.appendChild(cell)
+                            }
+
+                        })
+                        //console.log('---') // Separating each object for clarity
                     const additionalCell = document.createElement('td')
                     additionalCell.innerHTML = `
                         <button class="btn btn-primary duplicate">+</button>
@@ -455,12 +473,15 @@
                     $('#lastrow').before(row)
                 }
                 $('#project-name').val(jsonData[jsonData.length - 1].projectName)
+                const localSocketObj = getGlobalSocket()
+                sendMessage(localSocketObj)
             }
+
         }
 
         function sendMessage(socket) {
             var message = generateSocketMessage()
-            //console.log(JSON.stringify(message))
+                //console.log(JSON.stringify(message))
             socket.send(JSON.stringify(message))
         }
 
@@ -503,7 +524,8 @@
 
         $(document).ready(function() {
             const socket = new WebSocket('ws://localhost:13136')
-
+            setGlobalSocket(socket)
+            getGlobalSocket()
             $('body').on('click', '#add', function() {
                 var rows = $("#rundown").find(`tr[class="userinput"]`)
                 const lastEl = rows[rows.length - 1]
@@ -554,13 +576,6 @@
                 sendMessage(socket)
             })
 
-            /*
-            $('body').on('click', '#load', async function() {
-                loadJSON()
-                sendMessage(socket)
-            })
-            */
-
             $('body').on('click', '.duplicate', function() {
                 var index = $(this).parent().parent().attr('data-index')
                 index = Number(index)
@@ -569,7 +584,7 @@
                 var ogInfo = []
                 for (var x = 5; x < 11; x++) {
                     ogInfo.push($(`tr[data-index=${index}] > td:nth-child(${x}) > input`).val())
-                    //console.log('pushed, iteracio: ' + x)
+                        //console.log('pushed, iteracio: ' + x)
                 }
                 //console.log(ogInfo)
 
@@ -613,7 +628,7 @@
                     if ($(this).parent().hasClass('time') && !(isValidTimeFormat($(this).val()))) {
                         alert('Invalid format')
                         $(this).val("")
-                    } else if($(this).parent().hasClass('id')) {
+                    } else if ($(this).parent().hasClass('id')) {
                         var index = $(this).val()
                         const ogIndex = $(this).parent().parent().attr('data-index')
                         const element = $(this).parent().parent()
