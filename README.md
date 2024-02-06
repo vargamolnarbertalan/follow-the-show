@@ -1,6 +1,10 @@
 # Follow The Show by B3RC1
 This application helps you to create a show rundown and follow it through the whole the broadcast!
 
+## Running the application
+Windows: Execute run.bat found inside main folder.
+> Coming soon to docker.
+
 ## Available pages
 
 - **ip:port** ---> Manager window. This is basically a dashboard where you can create, edit, duplicate and remove segments or even reorder them by entering a new rundown ID.
@@ -29,3 +33,6 @@ Only accepatble time format for start time, end time and duration fields: **HH:m
 *If a new follow window client connects, they will only start to see the lines being hide when the operator hides the next segment.*
 *Nothing is stored on the server side, so save your work in the manager window and **download** it as a **.json** file. You can **load** it back anytime!*
 *Since nothing is stored on the server side, line hiding progress will be reset upon server restart.*
+
+## Requirements
+Current stable version of node.js.
