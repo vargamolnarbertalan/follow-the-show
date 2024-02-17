@@ -4,8 +4,8 @@ const http = require('http')
 const WebSocket = require('ws')
 const app = express()
 
-const http_port = process.env.PORT || 13135
-const wss_port = process.env.PORT || 13136
+const http_port = process.env.PORT || 10000
+const wss_port = 13136
 
 app.set('view engine', 'ejs')
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -13,7 +13,7 @@ app.use(express.static('public'))
 
 const server = http.createServer(app)
 const wss = new WebSocket.Server({ port: wss_port })
-console.log(wss)
+//console.log(wss)
 
 var lastMSG
 var globalHideCount = 2
