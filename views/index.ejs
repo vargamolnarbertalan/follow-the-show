@@ -480,10 +480,12 @@
             }
 
         }
+        function isOpen(ws) { return ws.readyState === ws.OPEN }
 
         function sendMessage(socket) {
             var message = generateSocketMessage()
                 //console.log(JSON.stringify(message))
+            if (!isOpen(socket)) return
             socket.send(JSON.stringify(message))
         }
 
