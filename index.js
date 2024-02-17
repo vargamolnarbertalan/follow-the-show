@@ -12,6 +12,7 @@ app.use(express.static('public'))
 
 const server = http.createServer(app)
 const wss = new WebSocket.Server({ port: 13136 })
+console.log(wss)
 
 var lastMSG
 var globalHideCount = 2
