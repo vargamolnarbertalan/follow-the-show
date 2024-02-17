@@ -525,7 +525,7 @@
 
 
         $(document).ready(function() {
-            const socket = new WebSocket('ws://localhost:13136')
+            const socket = new WebSocket('wss://localhost:13136')
             setGlobalSocket(socket)
             getGlobalSocket()
             $('body').on('click', '#add', function() {
