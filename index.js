@@ -2,18 +2,17 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const http = require('http')
 const WebSocket = require('ws')
-const app = express()
 
-const http_port = process.env.PORT || 10000
-const wss_port = 13136
+const app = express()
+const server = http.createServer(app)
+const wss = new WebSocket.Server({ server })
+
+const PORT = process.env.PORT || 443
 
 app.set('view engine', 'ejs')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(express.static('public'))
 
-const server = http.createServer(app)
-const wss = new WebSocket.Server({ port: wss_port })
-console.log(wss)
 
 var lastMSG
 var globalHideCount = 2
@@ -63,6 +62,6 @@ app.get('/hidereset', (req, res) => {
     res.send('RESET DONE')
 })
 
-app.listen(http_port, () => {
-    console.log(`Server is running at http://localhost:${http_port}`)
-})
+server.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`);
+  })
