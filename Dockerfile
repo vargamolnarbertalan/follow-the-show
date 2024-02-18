@@ -14,8 +14,7 @@ RUN npm install
 COPY . .
 
 # Expose the port your app runs on
-EXPOSE 13135/tcp
-EXPOSE 13136/udp
+EXPOSE 443
 
 # Command to run your application
 CMD ["node", "index.js"]
