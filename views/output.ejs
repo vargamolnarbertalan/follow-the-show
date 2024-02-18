@@ -163,9 +163,9 @@
         }
 
         $(document).ready(function() {
-            const server_ip = "e1-shoflo.onrender.com"
+            const server_ip = getUrlParameter('ip')
             console.log('socket server: ' + server_ip)
-            const socket = new WebSocket(`wss://${server_ip}`)
+            const socket = new WebSocket(`ws://${server_ip}`)
 
             socket.addEventListener('open', function(event) {
                 console.log('WebSocket connection is open!')

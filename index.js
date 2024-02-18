@@ -7,7 +7,7 @@ const app = express()
 const server = http.createServer(app)
 const wss = new WebSocket.Server({ server })
 
-const PORT = process.env.PORT || 443
+const PORT = process.env.PORT || 80
 
 app.set('view engine', 'ejs')
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -32,7 +32,7 @@ wss.on('connection', (ws) => {
     })
 })
 
-app.get('/', (req, res) => {
+app.get('/edit', (req, res) => {
     res.render('index')
 })
 
