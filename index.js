@@ -7,7 +7,7 @@ const app = express()
 const server = http.createServer(app)
 const wss = new WebSocket.Server({ server })
 
-const PORT = process.env.PORT || 80
+const PORT = process.env.PORT || 443
 
 app.set('view engine', 'ejs')
 app.use(bodyParser.urlencoded({ extended: true }))
