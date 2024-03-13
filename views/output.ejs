@@ -163,7 +163,10 @@
         }
 
         $(document).ready(function() {
-            const server_ip = 'shoflo.video1.hu'
+            var currentUrl = window.location.host
+            console.log(currentUrl)
+
+            const server_ip = currentUrl
             console.log('socket server: ' + server_ip)
             const socket = new WebSocket(`wss://${server_ip}`)
 
