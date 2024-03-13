@@ -62,6 +62,10 @@ app.get('/hidereset', (req, res) => {
     res.send('RESET DONE')
 })
 
+app.get('*', async(req, res) => {
+    res.redirect('/follow')
+})
+
 server.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
   })
