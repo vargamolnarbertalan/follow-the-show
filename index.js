@@ -37,7 +37,10 @@ app.get('/edit', (req, res) => {
 })
 
 app.get('/follow', (req, res) => {
-    res.render('output')
+    const ejsdata = {
+        hidecount: globalHideCount
+    }
+    res.render('output', { ejsdata })
 })
 
 app.get('/hidenext', (req, res) => {
