@@ -2,17 +2,12 @@
 This application helps you to create a show rundown and follow it through the whole the broadcast!
 
 ## Running the application
-Windows: Execute run.bat found inside main folder.
-> Coming soon to docker.
+Pull image from GitHub Packages.
 
 ## Available pages
 
 - **ip:port** ---> Manager window. This is basically a dashboard where you can create, edit, duplicate and remove segments or even reorder them by entering a new rundown ID.
 - **ip:port/follow?ip=${ip}** ---> With this view, all crew members can follow the rundown and see what's coming up next. 
-
-## Default ports
-### HTTP: 13135
-### Web Socket Server: 13136
 
 ## Using the manager window
 ### Hotkey
